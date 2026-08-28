@@ -591,6 +591,7 @@
   async function mailReply() {
     const email = $('mailEmail').value.trim();
     const intent = $('mailIntent').value.trim();
+    const sign = $('mailSign').value.trim();
     const status = $('mailStatus');
     const result = $('mailResult');
     if (!email && !intent) { toast('请输入客户邮件或回复意思'); return; }
@@ -608,7 +609,7 @@
     try {
       const app = getMailApp();
       if (mailAppReady) await mailAppReady;
-      const res = await app.callFunction({ name: 'wz-mail', data: { messages: mailChat } });
+      const res = await app.callFunction({ name: 'wz-mail', data: { messages: mailChat, sign } });
       const r = res && res.result;
       if (r && r.ok) {
         const en = r.english || '';
@@ -657,6 +658,7 @@
     window.__mailZh = '';
     $('mailEmail').value = '';
     $('mailIntent').value = '';
+    $('mailSign').value = '';
     $('mailResult').innerHTML = '';
     $('mailStatus').textContent = '';
   }
