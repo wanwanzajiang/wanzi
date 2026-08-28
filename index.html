@@ -556,6 +556,24 @@
     </div>
   </div>
   </div>
+
+  <!-- ⑤ 邮件回复（AI） -->
+  <div class="q-block" data-id="mail">
+    <div class="section q-toggle"><div class="num">✉️</div><div class="t">邮件回复</div><span class="q-fold-arrow">▼</span></div>
+    <div class="card">
+      <div class="label">客户邮件（粘贴原文，可留空）</div>
+      <textarea id="mailEmail" class="input" style="min-height:90px;" placeholder="粘贴客户发来的英文邮件..."></textarea>
+      <div class="label">你想回复的意思 / 指令（中文）</div>
+      <textarea id="mailIntent" class="input" style="min-height:70px;" placeholder="例如：回复说明书见附件 / 告诉他可以给1.8%折扣 / 问他付款账户信息"></textarea>
+      <div class="row" style="margin-top:10px;">
+        <button class="btn btn-primary" style="flex:1;" id="mailGenBtn">✨ 生成回复</button>
+        <button class="btn btn-ghost" id="mailClearBtn">✕ 清空</button>
+        <button class="btn btn-ghost" id="mailCopyBtn">📋 复制</button>
+      </div>
+      <div id="mailStatus" class="hint" style="margin-top:10px;"></div>
+      <div id="mailResult" style="margin-top:10px;"></div>
+    </div>
+  </div>
   </div>
   </div>
   </div>
