@@ -574,13 +574,17 @@
   // ⑤ 邮件回复（AI，走腾讯云函数 wz-mail）
   // ============================================================
   let mailApp = null;
+  let mailAppReady = null;
   function getMailApp() {
-    if (mailApp) return mailApp;
-    try {
-      mailApp = cloudbase.init({ env: 'wanwan-d2gafa9gobac0b79b', region: 'ap-shanghai' });
-      const auth = mailApp.auth({ persistence: 'local' });
-      auth.signInAnonymously().catch(() => {});
-    } catch (e) {}
+    if (!mailApp) {
+      try {
+        mailApp = cloudbase.init({ env: 'wanwan-d2gafa9gobac0b79b', region: 'ap-shanghai' });
+      } catch (e) { mailApp = null; }
+      mailAppReady = (async () => {
+        try { await mailApp.auth({ persistence: 'local' }).signInAnonymously(); }
+        catch (e) { console.warn('匿名登录失败', e); }
+      })();
+    }
     return mailApp;
   }
   let mailChat = []; // 多轮对话历史 [{role, content}]
@@ -603,6 +607,7 @@
 
     try {
       const app = getMailApp();
+      if (mailAppReady) await mailAppReady;
       const res = await app.callFunction({ name: 'wz-mail', data: { messages: mailChat } });
       const r = res && res.result;
       if (r && r.ok) {
