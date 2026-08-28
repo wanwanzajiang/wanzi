@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>丸子の工作宝宝</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23ffb7d2'/%3E%3Ccircle cx='32' cy='32' r='24' fill='%23fffdf8'/%3E%3Ctext x='32' y='44' font-size='30' text-anchor='middle'%3E%F0%9F%8E%90%3C/text%3E%3C/svg%3E" />
+  <script src="cloudbase.full.js"></script>
+  <link rel="stylesheet" href="style.css?v=20260826f">
+  <link rel="stylesheet" href="query.css?v=20260827c">
+</head>
+<body>
+  <div class="workspace" id="app">
+    <!-- 顶部栏 -->
+    <div class="topbar-ws">
+      <div class="ws-brand">🎐 丸子の工作宝宝</div>
+      <div class="ws-time" id="wsTime">--:--</div>
+    </div>
+
+    <!-- 左侧导航 -->
+    <nav class="sidebar">
+      <div class="nav-item active" data-panel="publish" title="发品宝宝">
+        <img class="nav-icon-img" src="icon-robot.png" alt="发品宝宝">
+        <span class="nav-label">发品宝宝</span>
+      </div>
+      <div class="nav-item" data-panel="todo" title="每日计划">
+        <span class="nav-icon">📝</span>
+        <span class="nav-label">每日计划</span>
+      </div>
+      <div class="nav-item" data-panel="query" title="查询宝宝">
+        <img class="nav-icon-img" src="icon-tool.png" alt="查询宝宝">
+        <span class="nav-label">查询宝宝</span>
+      </div>
+      <div class="nav-item" data-panel="price" title="报价宝宝">
+        <img class="nav-icon-img" src="icon-logo.png" alt="报价宝宝">
+        <span class="nav-label">报价宝宝</span>
+      </div>
+      <div class="nav-item" data-panel="more" title="更多">
+        <span class="nav-icon">✨</span>
+        <span class="nav-label">更多</span>
+      </div>
+    </nav>
+
+    <!-- 右侧主内容 -->
+    <main class="main">
+    <div id="draftBanner" class="draft-banner" style="display:none;">
+      <span>📝 上次有未完成的发品草稿</span>
+      <div class="row"><button class="btn btn-ghost btn-mini" id="restoreDraftBtn">恢复</button><button class="btn btn-ghost btn-mini" id="discardDraftBtn">丢弃</button></div>
+    </div>
+
+    <!-- ① Shopify 发品 -->
+    <div class="panel active" id="panel-publish">
+    <div class="section"><div class="num">①</div><div class="t">店铺与令牌</div></div>
+    <div class="card">
+      <div class="shop-head" id="shopToggle">
+        <span class="shop-arrow" id="shopArrow">▸</span>
+        <span class="h2" style="margin:0;">已添加店铺</span>
+        <span class="shop-count" id="shopCount"></span>
+      </div>
+      <div id="shopListWrap" style="display:none;">
+      <div id="shopList"></div>
+      <div id="shopEmpty" class="hint" style="display:none;">还没有店铺，点下面「添加店铺」吧～</div>
+      <button class="btn btn-ghost btn-block" id="toggleAddShop">➕ 添加店铺</button>
+      <div id="addShopForm" style="display:none; margin-top:12px;">
+        <div class="label">店铺域名</div>
+        <input class="input" id="newStore" />
+        <div class="label">店铺备注名（可不填）</div>
+        <input class="input" id="newName" />
+        <div class="label">Client ID</div>
+        <input class="input" id="newClientId" />
+        <div class="label">Client Secret（shpss_ 开头）</div>
+        <input class="input" id="newSecret" />
+        <button class="btn btn-primary btn-block" id="addShopBtn">添加店铺</button>
+      </div>
+      </div>
+    </div>
+
+    <!-- ② 批量上传图片 -->
+    <div class="section"><div class="num">②</div><div class="t">批量上传图片</div></div>
+    <div class="card">
+      <div class="label">目标店铺</div>
+      <select class="input" id="uploadShopSelect"></select>
+      <div id="uploadDropzone" class="dropzone">
+        <div class="dz-icon">🖼️</div>
+        <div class="dz-text">把图片拖到这里，或点击选择 / 直接粘贴 (Ctrl+V)</div>
+        <div class="dz-sub">支持 JPG / PNG / WebP / GIF，原图直传，可一次选多张</div>
+        <input type="file" id="uploadFileInput" accept="image/*" multiple style="display:none;">
+      </div>
+      <div class="row" style="margin-top:12px;">
+        <button class="btn btn-primary btn-mini" id="uploadStartBtn">🚀 开始上传</button>
+        <button class="btn btn-ghost btn-mini" id="uploadClearBtn">清空列表</button>
+        <button class="btn btn-ghost btn-mini" id="uploadOpenLibBtn">📚 打开文件库</button>
+      </div>
+      <div class="progress" id="uploadProgress" style="display:none; margin-top:12px;"><div class="spin"></div><span id="uploadProgressText"></span></div>
+      <div class="progress-bar" id="uploadProgressBar" style="display:none; margin-top:8px;"><div class="fill" id="uploadProgressFill" style="width:0%;"></div></div>
+      <div id="uploadList" class="upload-list"></div>
+    </div>
+
+    <!-- ③ 快速发品 -->
+    <div class="section"><div class="num">③</div><div class="t">快速发品</div></div>
+    <div class="card">
+      <div class="label">目标店铺</div>
+      <select class="input" id="shopSelect"></select>
+
+      <!-- 横幅消息 -->
+      <div id="banners"></div>
+
+      <!-- 高级设置（可折叠） -->
+      <div class="topbar" style="margin-top:14px;">
+        <span class="h2" style="margin:0;">⚙️ 高级设置</span>
+        <button class="btn btn-ghost btn-mini" id="toggleSettings">展开</button>
+      </div>
+      <div id="settingsPanel" class="fold-panel" style="display:none;">
+        <div class="label">发布模式</div>
+        <select class="input" id="mode">
+          <option value="single">单个发布</option>
+          <option value="batch">批量发布</option>
+        </select>
+
+        <div class="label">标题格式</div>
+        <select class="input" id="titleFormat">
+          <option value="vendor_model_name">厂商 型号 品名</option>
+          <option value="model_vendor_system">型号 | 厂商 | 系统名 品名</option>
+          <option value="vendor_model_series">厂商 型号 系列名 品名</option>
+        </select>
+        <div class="hint">品名与系列名会自动转为 Title Case</div>
+
+        <div class="label">描述格式</div>
+        <select class="input" id="descFormat">
+          <option value="html" selected>HTML 代码（原样保留）</option>
+          <option value="plain">纯文本（自动分段）</option>
+        </select>
+
+        <div class="label">Shopify 产品类别 (Category)</div>
+        <div class="row">
+          <input class="input" id="categorySearch" style="flex:2;" />
+          <button class="btn btn-ghost btn-mini" id="btnCatSearch" style="flex:0 0 auto;">搜索</button>
+        </div>
+        <div id="categoryArea" style="margin-top:8px;"></div>
+
+        <div class="label">上架销售渠道 <span id="pubCount"></span></div>
+        <div id="pubArea" style="margin-bottom:8px;"><span class="hint">加载中…</span></div>
+        <div class="row">
+          <button class="btn btn-ghost btn-mini" id="pubSelectAll">全选</button>
+          <button class="btn btn-ghost btn-mini" id="pubSelectNone">全不选</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 批量发品 -->
+    <div id="batchSection" class="card" style="display:none;">
+      <div class="h2">批量发品</div>
+      <div class="label">厂商（本批共用）</div>
+      <div class="vendor-row"><input class="input" id="batchVendor" autocomplete="off" /><div class="vendor-datalist" id="batchVendorList"></div></div>
+      <div class="label">批量内容</div>
+      <textarea class="input" id="batchInput" rows="10"></textarea>
+      <div class="hint">每段第一行填型号，下面几行填描述；产品之间用单独一行 --- 分隔；单次最多 50 个</div>
+      <div class="row" style="margin-top:12px;">
+        <button class="btn btn-primary btn-mini" id="parseBatchBtn">🔎 解析内容</button>
+        <button class="btn btn-danger btn-mini" id="clearBatchBtn">清空</button>
+      </div>
+      <div id="batchNotice" class="hint"></div>
+      <div id="batchProgress" class="progress" style="display:none; margin-top:8px;"><div class="spin"></div><span id="batchProgressText"></span></div>
+      <div id="batchProgressBar" class="progress-bar" style="display:none;"><div class="fill" id="batchProgressFill" style="width:0%;"></div></div>
+      <div id="batchTableWrap" style="display:none; margin-top:14px;">
+        <div id="batchListBody"></div>
+        <div id="batchScheduleWrap" style="display:none; margin-top:10px; background:#f8f4ff; border-radius:12px; padding:10px 12px;">
+          <label class="label" style="margin-bottom:6px;"><input type="checkbox" id="batchScheduleOn"> 开启批量定时</label>
+          <div id="batchScheduleOpts" style="display:none; margin-top:8px;">
+            <div class="row" style="gap:12px; align-items:center; flex-wrap:wrap;">
+              <label class="checkline" style="margin:0;"><input type="radio" name="scheduleMode" id="schedInterval" value="interval" checked onchange="onScheduleModeChange()"> 间隔发布</label>
+              <label class="checkline" style="margin:0;"><input type="radio" name="scheduleMode" id="schedSpecific" value="specific" onchange="onScheduleModeChange()"> 指定时间</label>
+            </div>
+            <div id="schedIntervalOpts" style="margin-top:8px;">
+              <div class="row" style="gap:8px; align-items:center;">
+                <span>每隔</span>
+                <select class="input" id="batchInterval" style="width:80px;">
+                  <option value="1">1分钟</option><option value="2">2分钟</option>
+                  <option value="3">3分钟</option><option value="5" selected>5分钟</option>
+                  <option value="10">10分钟</option><option value="15">15分钟</option>
+                  <option value="20">20分钟</option><option value="30">30分钟</option>
+                </select>
+                <span>发布下一个</span>
+              </div>
+            </div>
+            <div id="schedSpecificOpts" style="display:none; margin-top:8px;">
+              <div class="row" style="gap:8px; align-items:center;">
+                <span>首发时间</span>
+                <input type="datetime-local" id="batchSpecificTime" class="input" style="width:220px;">
+              </div>
+              <div class="row" style="gap:8px; align-items:center; margin-top:6px;">
+                <span>间隔</span>
+                <select class="input" id="batchInterval2" style="width:80px;">
+                  <option value="1">1分钟</option><option value="2">2分钟</option>
+                  <option value="5" selected>5分钟</option>
+                  <option value="10">10分钟</option>
+                  <option value="30">30分钟</option>
+                </select>
+                <span>发布下一个（所有产品顺序发布）</span>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-block" id="btnBatchRun" style="margin-top:14px;">✅ 批量创建并上架</button>
+      </div>
+
+    <!-- 单个发品 - 第一步 -->
+    <div id="singleInputSection" class="card">
+      <div class="h2">第一步 · 输入型号与厂商</div>
+      <div class="row">
+        <div>
+          <div class="label">型号</div>
+          <input class="input" id="model" />
+        </div>
+        <div>
+          <div class="label">厂商</div>
+          <div class="vendor-row"><input class="input" id="vendor" autocomplete="off" /><div class="vendor-datalist" id="vendorList"></div></div>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-block" id="startFillBtn" style="margin-top:12px;">📋 开始填写（自动搜图）</button>
+    </div>
+
+    <!-- 单个发品 - 第二步 -->
+    <div id="singleContentSection" class="card" style="display:none;">
+      <div class="h2">第二步 · 描述与 SEO</div>
+      <div class="label">产品标题</div>
+      <input class="input" id="title" />
+      <div class="hint">优先使用描述中的 TITLE，否则按标题格式生成，可自由编辑</div>
+
+      <div class="label">产品描述</div>
+      <textarea class="input" id="description" rows="10"></textarea>
+      <div class="hint">描述开头可写 TITLE: / TYPE: / TAGS: 三行，解析后优先使用且不会写入产品描述。<span id="descFormatHint"></span></div>
+
+      <button class="btn btn-ghost btn-block" id="generateBtn" style="margin-top:10px;">✨ 根据描述生成标题 / 类型 / 标记 / SEO</button>
+      <div id="directivePreview" class="directive" style="display:none;"></div>
+
+      <div class="label">SEO 标题 <span id="seoLen"></span></div>
+      <input class="input" id="seoTitle" />
+
+      <div class="label">Meta Description <span id="metaLen"></span></div>
+      <textarea class="input" id="metaDescription" rows="2"></textarea>
+
+      <div class="label">Handle（网址后缀）</div>
+      <input class="input" id="handle" />
+      <div class="hint">留空则由 Shopify 根据标题自动生成</div>
+
+      <div class="row">
+        <div>
+          <div class="label">SKU</div>
+          <input class="input" id="sku" />
+        </div>
+        <div>
+          <div class="label">产品类型 (Product Type)</div>
+          <input class="input" id="productType" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <div class="label">条码 (Barcode)</div>
+          <input class="input" id="barcode" />
+        </div>
+        <div>
+          <div class="label">库存数量（留空随机）</div>
+          <input class="input" id="inventoryQuantity" type="number" />
+        </div>
+      </div>
+
+      <div class="label">标记 Tags（逗号分隔）</div>
+      <input class="input" id="tags" />
+    </div>
+
+    <!-- 单个发品 - 第三步 -->
+    <div id="singlePreviewSection" class="card" style="display:none;">
+      <div class="h2">第三步 · 自动填充预览</div>
+      <div class="label" id="imgCountLabel">产品图片</div>
+      <div id="imageStatus"></div>
+      <div id="selectedImagesWrap" class="sel-imgs"></div>
+      <input type="file" id="imageUploadInput" accept="image/*" style="display:none;">
+      <button class="btn btn-ghost btn-mini" id="btnUploadImage" style="margin-top:6px;">📤 上传本地图片</button>
+      <div class="row" style="margin-top:10px;">
+        <input class="input" id="imageSearchTerm" style="flex:2;" />
+        <button class="btn btn-ghost btn-mini" id="btnImgSearch" style="flex:0 0 auto;">搜索</button>
+      </div>
+      <div id="candidatesWrap" class="img-grid"></div>
+      <div id="pricingBox" class="pricing"></div>
+      <div class="row" style="margin-top:10px;">
+        <button class="btn btn-ghost btn-mini" id="scheduleBtn">⏰ 定时发布</button>
+      </div>
+      <div id="scheduleWrap" style="display:none; margin-top:10px;">
+        <div class="label">发布时间</div>
+        <div class="date-picker">
+          <input class="input" id="scheduleTime" type="datetime-local" />
+        </div>
+        <div class="quick-dates">
+          <button class="btn btn-ghost btn-mini" data-hours="1">+1小时</button>
+          <button class="btn btn-ghost btn-mini" data-hours="2">+2小时</button>
+          <button class="btn btn-ghost btn-mini" data-hours="6">+6小时</button>
+          <button class="btn btn-ghost btn-mini" data-hours="24">明天</button>
+        </div>
+        <button class="btn btn-primary btn-mini btn-block" id="confirmScheduleBtn" style="margin-top:8px;">✅ 确认定时发布</button>
+      </div>
+      <button class="btn btn-primary btn-block" id="createBtn" style="margin-top:14px;">✅ 创建并上架</button>
+    </div>
+
+    <!-- ④ 最近发品 + 定时队列 -->
+    <div class="section"><div class="num">④</div><div class="t">数据与队列</div></div>
+    <div class="card">
+      <div class="topbar">
+        <span class="h2" style="margin:0;">最近发品</span>
+        <div class="row">
+          <label class='checkline'><input type='checkbox' id='selectAllRecent'> 全选本页</label>
+          <button class='btn btn-primary btn-mini' id='bulkEditBtn' style='display:none;'>🛠️ 批量编辑选中 (<span id='bulkSelCount'>0</span>)</button>
+          <button class="btn btn-ghost btn-mini" id="refreshRecentBtn">刷新</button>
+          <button class="btn btn-ghost btn-mini" id="prevPageBtn">上一页</button>
+          <button class="btn btn-ghost btn-mini" id="nextPageBtn">下一页</button>
+        </div>
+      </div>
+      <div class="recent-search">
+        <input class="input" id="recentSearchInput" placeholder="搜索型号或 SKU...">
+      </div>
+      <table class="recent-table" style="margin-top:12px;width:100%;">
+        <thead><tr><th style='width:38px;'><input type='checkbox' id='selectAllRecentHead'></th><th>商品</th><th>状态</th><th>售价</th><th>SKU</th><th>库存</th><th>创建时间</th><th>操作</th></tr></thead>
+        <tbody id="recentBody"><tr><td colspan="7" class="hint">加载中…</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- 批量编辑已发布产品 -->
+    <div id='bulkEditPanel' class='card' style='display:none;'>
+      <div class='h2'>🛠️ 批量编辑已发布产品</div>
+      <div class='hint'>已选 <b id='bulkCount'>0</b> 个产品。勾选要修改的字段，未勾选的保持不变。</div>
+
+      <label class='checkline' style='margin-top:10px;'><input type='checkbox' id='bulkImgOn' checked> 🔄 重新匹配图片</label>
+      <div id='bulkImgOpts' style='margin:6px 0 10px 24px;'>
+        <label class='checkline'><input type='radio' name='bulkImgMode' value='search' checked> 按型号/SKU 从图片库重新搜索（推荐）</label><br>
+        <label class='checkline'><input type='radio' name='bulkImgMode' value='unified'> 统一使用一张新图（下方上传）</label>
+        <div id='bulkUnifiedWrap' style='display:none; margin-top:6px;'>
+          <input type='file' id='bulkUnifiedFile' accept='image/*' style='font-size:12px;'>
+        </div>
+      </div>
+
+      <label class='checkline' style='margin-top:6px;'><input type='checkbox' id='bulkTypeOn'> 🏷️ 修改产品类型 (Product Type)</label>
+      <input class='input' id='bulkType' placeholder='例如 Pressure Transmitter' style='margin:6px 0 10px 24px; display:none;'>
+
+      <label class='checkline' style='margin-top:6px;'><input type='checkbox' id='bulkTagsOn'> 🔖 修改标记 Tags</label>
+      <div id='bulkTagsOpts' style='margin:6px 0 10px 24px; display:none;'>
+        <input class='input' id='bulkTags' placeholder='逗号分隔，如 Valve, Industrial'>
+        <label class='checkline' style='margin-top:6px;'><input type='checkbox' id='bulkTagsAppend' checked> 追加到原有 Tags（不勾则覆盖）</label>
+      </div>
+
+      <label class='checkline' style='margin-top:6px;'><input type='checkbox' id='bulkDescOn'> 📝 重新解析描述并更新标题/类型/Tags/SEO</label>
+      <div id='bulkDescOpts' style='display:none; margin:6px 0 10px 24px;'>
+        <textarea class='input' id='bulkDescInput' rows='5' placeholder='粘贴产品描述，格式和批量发品完全一致（用 --- 分隔每个产品）：
+
+型号1
+描述内容（第一行作为型号，其余作为描述）
+---
+型号2
+描述内容
+---
+型号3
+描述内容...'></textarea>
+        <div class='hint' style='margin-top:4px;'>提示：每个产品的描述用空行分隔；型号在描述中自动提取（格式同发品）。</div>
+      </div>
+
+      <label class='checkline' style='margin-top:6px;'><input type='checkbox' id='bulkStatusOn'> 📦 修改上架状态</label>
+      <select class='input' id='bulkStatus' style='margin:6px 0 10px 24px; display:none; width:160px;'>
+        <option value='ACTIVE'>上架 (ACTIVE)</option>
+        <option value='DRAFT'>转草稿 (DRAFT)</option>
+        <option value='ARCHIVED'>归档 (ARCHIVED)</option>
+      </select>
+
+      <div class='progress' id='bulkProgress' style='display:none; margin-top:10px;'><div class='spin'></div><span id='bulkProgressText'></span></div>
+      <div class='progress-bar' id='bulkProgressBar' style='display:none; margin-top:8px;'><div class='fill' id='bulkProgressFill' style='width:0%;'></div></div>
+      <div id='bulkErrors' style='display:none; margin-top:10px; font-size:12px; color:#c00; max-height:120px; overflow-y:auto; background:#fff0f0; border:1px solid #fcc; border-radius:6px; padding:8px 10px;'></div>
+      <div class='row' style='margin-top:14px;'>
+        <button class='btn btn-primary btn-block' id='bulkRunBtn'>✅ 应用到选中产品</button>
+        <button class='btn btn-ghost btn-mini' id='bulkCloseBtn' style='margin-left:8px;'>收起</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between;align-items:center;">
+        <div class="h2" style="margin:0;">定时发品队列</div>
+        <button class="btn btn-danger btn-mini" id="clearDoneBtn" onclick="clearDoneQueue()">🗑 清空已完成</button>
+      </div>
+      <div id="queueList" class="queue-card"></div>
+      <div id="queueEmpty" class="hint" style="display:none;">暂无定时任务</div>
+      <button class="btn btn-ghost btn-block" id="refreshQueueBtn">🔄 刷新队列</button>
+    </div>
+    <!-- ⑤ 批量查重 -->
+    <div class="section"><div class="num">⑤</div><div class="t">批量查重</div></div>
+    <div class="card">
+      <div class="topbar"><div class="h2">批量查重</div><span class="status" id="dupStatus"></span></div>
+      <div class="hint" style="margin-top:0;">查重对象：<b id="dupShopName">当前店铺</b>。首次查询会拉取店铺全部产品索引（约几秒），之后秒查。</div>
+      <div class="label">型号列表（一行一个）</div>
+      <textarea id="dupInput" class="input" style="min-height:120px;"></textarea>
+      <div class="label">查重模式</div>
+      <div class="row" style="gap:8px;flex-wrap:wrap;">
+        <label class="checkline" style="margin-bottom:0;"><input type="radio" name="dupMode" value="sku" checked> SKU 完全一致</label>
+        <label class="checkline" style="margin-bottom:0;"><input type="radio" name="dupMode" value="title"> 标题包含</label>
+        <label class="checkline" style="margin-bottom:0;"><input type="radio" name="dupMode" value="both"> SKU+标题同时命中</label>
+      </div>
+      <div class="row" style="margin-top:12px;">
+        <button class="btn btn-primary" style="flex:1;" id="dupRunBtn">🔍 开始查重</button>
+        <button class="btn btn-ghost" id="dupRefreshBtn">🔄 刷新索引</button>
+      </div>
+      <div class="progress" id="dupProgress" style="display:none; margin-top:12px;"><div class="spin"></div><span id="dupProgressText"></span></div>
+      <div id="dupResult" style="margin-top:12px;"></div>
+    </div>
+    </div><!-- /panel-publish -->
+
+<!-- 查询宝宝 -->
+<div class="panel" id="panel-query">
+  <!-- ① 参数查询 -->
+  <div class="q-block" data-id="search">
+    <div class="section q-toggle"><div class="num">🔍</div><div class="t">参数查询</div><span class="q-fold-arrow">▼</span></div>
+    <div class="card">
+    <div class="row">
+      <input type="text" id="searchInput" class="input" placeholder="输入型号，多个用空格或逗号分隔" autocomplete="off" style="flex:1;">
+      <button class="btn btn-primary" id="searchBtn" style="flex:0;padding:12px 20px;">🔍</button>
+    </div>
+    <div id="count" style="margin-top:10px;"></div>
+    <div id="results" style="margin-top:8px;"></div>
+  </div>
+
+  <!-- ② 全球换算 -->
+  <div class="q-block" data-id="global">
+    <div class="section q-toggle"><div class="num">🌍</div><div class="t">全球换算</div><span class="q-fold-arrow">▼</span></div>
+    <div class="card">
+    <div class="row" style="gap:10px;">
+      <div class="global-card" data-tool="exchange" onclick="queryBaby.showGlobalTool('exchange')">
+        <span class="global-icon">💱</span><span class="global-title">汇率换算</span>
+      </div>
+      <div class="global-card" data-tool="timezone" onclick="queryBaby.showGlobalTool('timezone')">
+        <span class="global-icon">🕐</span><span class="global-title">时差查询</span>
+      </div>
+    </div>
+
+    <!-- 汇率 -->
+    <div id="gl-exchange" style="display:none;margin-top:12px;">
+      <div class="row" style="align-items:center;">
+        <input type="number" id="exInput" class="input" placeholder="金额" value="1" oninput="queryBaby.convert()" style="flex:0 0 90px;">
+        <select id="exFrom" class="input" style="flex:1;" onchange="queryBaby.fetchRate()">
+          <option value="CNY" selected>🇨🇳 CNY 人民币</option>
+          <option value="USD">🇺🇸 USD 美元</option>
+          <option value="EUR">🇪🇺 EUR 欧元</option>
+          <option value="GBP">🇬🇧 GBP 英镑</option>
+          <option value="JPY">🇯🇵 JPY 日元</option>
+          <option value="HKD">🇭🇰 HKD 港币</option>
+          <option value="KRW">🇰🇷 KRW 韩元</option>
+          <option value="CAD">🇨🇦 CAD 加元</option>
+          <option value="AUD">🇦🇺 AUD 澳元</option>
+          <option value="CHF">🇨🇭 CHF 瑞郎</option>
+          <option value="SGD">🇸🇬 SGD 新币</option>
+        </select>
+        <button class="btn btn-ghost btn-mini" onclick="queryBaby.swapCurrency()" title="互换货币" style="flex:0;">⇄</button>
+        <select id="exTo" class="input" style="flex:1;" onchange="queryBaby.convert()">
+          <option value="CNY">🇨🇳 CNY 人民币</option>
+          <option value="USD" selected>🇺🇸 USD 美元</option>
+          <option value="EUR">🇪🇺 EUR 欧元</option>
+          <option value="GBP">🇬🇧 GBP 英镑</option>
+          <option value="JPY">🇯🇵 JPY 日元</option>
+          <option value="HKD">🇭🇰 HKD 港币</option>
+          <option value="KRW">🇰🇷 KRW 韩元</option>
+          <option value="CAD">🇨🇦 CAD 加元</option>
+          <option value="AUD">🇦🇺 AUD 澳元</option>
+          <option value="CHF">🇨🇭 CHF 瑞郎</option>
+          <option value="SGD">🇸🇬 SGD 新币</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:10px;">
+        <div id="exResult" style="font-size:22px;font-weight:700;color:var(--pink-d);flex:1;">—</div>
+        <button class="btn btn-ghost btn-mini" onclick="queryBaby.refreshRate()" title="刷新汇率">↻ 刷新</button>
+      </div>
+      <div id="exRate" class="hint" style="margin-top:8px;">📡 汇率数据加载中...</div>
+    </div>
+
+    <!-- 时差 -->
+    <div id="gl-timezone" style="display:none;margin-top:12px;">
+      <div class="row" style="align-items:center;gap:10px;">
+        <div style="flex:1;position:relative;">
+          <input type="text" id="tzCityA" class="input" placeholder="城市/国家/区号" oninput="queryBaby.tzSearch('A')" onfocus="queryBaby.tzSearch('A')" autocomplete="off">
+          <div id="tzSuggestA" class="tz-suggest"></div>
+        </div>
+        <span style="color:#a08bb0;font-weight:700;">VS</span>
+        <div style="flex:1;position:relative;">
+          <input type="text" id="tzCityB" class="input" placeholder="城市/国家/区号" oninput="queryBaby.tzSearch('B')" onfocus="queryBaby.tzSearch('B')" autocomplete="off">
+          <div id="tzSuggestB" class="tz-suggest"></div>
+        </div>
+      </div>
+      <div id="tzResult" style="text-align:center;padding:16px;font-size:14px;color:#a08bb0;">
+        输入两个城市或国家名称，自动计算时差
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ 物流工具 -->
+  <div class="q-block" data-id="logistics">
+    <div class="section q-toggle"><div class="num">📦</div><div class="t">物流工具</div><span class="q-fold-arrow">▼</span></div>
+    <div class="card">
+    <div class="row" style="gap:10px;">
+      <div class="logistics-card" data-tool="express" onclick="queryBaby.showLogisticsTool('express')">
+        <span class="logistics-icon">🚚</span><span class="logistics-title">快递查询</span>
+      </div>
+      <div class="logistics-card" data-tool="packaging" onclick="queryBaby.showLogisticsTool('packaging')">
+        <span class="logistics-icon">📐</span><span class="logistics-title">包装预估</span>
+      </div>
+    </div>
+
+    <!-- 快递 -->
+    <div id="lg-express" style="display:none;margin-top:12px;">
+      <div class="row">
+        <select id="expCompany" class="input" style="flex:0 0 130px;">
+          <option value="shunfeng">顺丰速运</option>
+          <option value="debang">德邦快递</option>
+          <option value="ems">EMS</option>
+          <option value="dhl">DHL</option>
+          <option value="ups">UPS</option>
+          <option value="fedex">FedEx</option>
+        </select>
+        <input type="text" id="expNumber" class="input" placeholder="输入快递单号" style="flex:1;" onkeydown="if(event.key==='Enter')queryBaby.queryExpress()">
+        <button class="btn btn-primary" onclick="queryBaby.queryExpress()" style="flex:0;">🔍 查询</button>
+      </div>
+      <div id="expResult" style="margin-top:10px;"></div>
+    </div>
+
+    <!-- 包装预估 -->
+    <div id="lg-packaging" style="display:none;margin-top:12px;">
+      <textarea id="pkgInput" class="input" style="min-height:100px;"></textarea>
+      <button class="btn btn-primary btn-block" style="margin-top:10px;" onclick="queryBaby.estimatePackaging()">📦 计算装箱</button>
+      <div id="pkgResult" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <!-- ④ 链接抓取 -->
+  <div class="q-block" data-id="link">
+    <div class="section q-toggle"><div class="num">🔗</div><div class="t">链接抓取</div><span class="q-fold-arrow">▼</span></div>
+    <div class="card">
+    <div class="label">Shopify 店铺网址</div>
+    <input type="text" id="lfStoreUrl" class="input">
+    <div class="label">型号列表（一行一个）</div>
+    <textarea id="lfInput" class="input" style="min-height:110px;font-family:Consolas,monospace;"></textarea>
+    <div class="row" style="margin-top:10px;">
+      <button class="btn btn-primary" style="flex:1;" onclick="queryBaby.linkFetcherSearch()">🔎 查找</button>
+      <button class="btn btn-ghost" onclick="queryBaby.linkFetcherClear()">✕ 清空</button>
+      <button class="btn btn-ghost" onclick="queryBaby.linkFetcherCopy()">📋 复制</button>
+    </div>
+    <div id="lfInfo" class="hint" style="margin-top:10px;"></div>
+    <div style="max-height:400px;overflow:auto;margin-top:8px;border-radius:12px;border:2px solid var(--line);">
+      <table id="lfResultTable" style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead><tr style="background:#fdf7fb;"><th style="padding:10px 8px;color:var(--purple-d);position:sticky;top:0;">#</th><th style="padding:10px 8px;color:var(--purple-d);position:sticky;top:0;">型号</th><th style="padding:10px 8px;color:var(--purple-d);position:sticky;top:0;">标题</th><th style="padding:10px 8px;color:var(--purple-d);position:sticky;top:0;">链接</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+  </div>
+  </div>
+  </div>
+  </div>
+</div>
+
+
+    <!-- 每日计划 -->
+    <div class="panel" id="panel-todo">
+      <div class="card">
+        <div class="h2">📝 每日计划</div>
+        <div class="hint">写下今日待办，完成后轻轻一点划掉。<br>功能开发中，敬请期待～</div>
+      </div>
+    </div>
+
+    <!-- 更多 -->
+    <div class="panel" id="panel-more">
+      <div class="card">
+        <div class="h2">✨ 更多功能</div>
+        <div class="hint">这里会陆续加入丸子的新模块。<br>有想法随时告诉人家～</div>
+      </div>
+    </div>
+
+    <!-- 报价宝宝 -->
+    <div class="panel" id="panel-price">
+      <div class="price-open-bar">
+        <div class="price-open-info">
+          <span class="price-open-title">🧸 报价宝宝</span>
+          <span class="price-open-sub">型号查价 · 历史价格 · AI 小助手 · 密码登录保护</span>
+        </div>
+        <a class="btn btn-primary btn-mini" href="https://chachaer815.github.io/xinxiner/baojia-query/" target="_blank" rel="noopener">↗ 新窗口打开</a>
+      </div>
+      <div class="price-frame-wrap">
+        <iframe id="priceFrame" class="price-frame" src="https://chachaer815.github.io/xinxiner/baojia-query/" title="报价宝宝"></iframe>
+      </div>
+    </div>
+  </main>
+  </div>
+
+<!-- 添加产品模态框 -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal-box">
+    <div class="modal-title">
+      <span>📦</span> 添加产品
+      <button class="modal-close">✕</button>
+    </div>
+    <div id="addFormContent">
+      <div class="form-group">
+        <label class="form-label">型号 *</label>
+        <input type="text" class="form-input" id="addModel" placeholder="例如：ABC-1234" autocomplete="off">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">尺寸</label>
+          <input type="text" class="form-input" id="addSize" placeholder="例如：10x20x5cm">
+        </div>
+        <div class="form-group">
+          <label class="form-label">重量</label>
+          <input type="text" class="form-input" id="addWeight" placeholder="例如：1.5kg">
+        </div>
+      </div>
+      <div class="form-hint">* 必填项，尺寸和重量可留空，稍后补充</div>
+      <div class="form-group">
+        <label class="form-label">描述</label>
+        <input type="text" class="form-input" id="addName" placeholder="产品名称或描述（选填）" autocomplete="off">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel">取消</button>
+        <button class="btn-save" id="saveBtn">保存入库</button>
+      </div>
+    </div>
+    <div id="addSuccessContent" style="display:none;">
+      <div class="form-success">
+        <div class="success-icon">✅</div>
+        <div class="success-text">添加成功！</div>
+        <div class="success-model" id="savedModelName"></div>
+        <div style="color:#a08bb0;font-size:13px;margin-top:8px;">已自动入库，可直接查询</div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel">关闭</button>
+        <button class="btn-save view-result">查看结果</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js?v=20260828a"></script>
+  <script src="tz-data.js?v=20260827c"></script>
+  <script src="query.js?v=20260828b"></script>
+  <script src="publish.js?v=20260828a"></script>
+</body>
+</html>
