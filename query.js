@@ -571,6 +571,60 @@
   }
 
   // ============================================================
+  // ⑤ 邮件回复（AI，走腾讯云函数 wz-mail）
+  // ============================================================
+  let mailApp = null;
+  function getMailApp() {
+    if (mailApp) return mailApp;
+    try {
+      mailApp = cloudbase.init({ env: 'wanwan-d2gafa9gobac0b79b', region: 'ap-shanghai' });
+      const auth = mailApp.auth({ persistence: 'local' });
+      auth.signInAnonymously().catch(() => {});
+    } catch (e) {}
+    return mailApp;
+  }
+  async function mailReply() {
+    const email = $('mailEmail').value.trim();
+    const intent = $('mailIntent').value.trim();
+    const status = $('mailStatus');
+    const result = $('mailResult');
+    if (!email && !intent) { toast('请输入客户邮件或回复意思'); return; }
+    const btn = $('mailGenBtn');
+    btn.disabled = true; btn.textContent = '生成中...';
+    status.textContent = '✉️ AI 正在生成邮件回复...';
+    result.innerHTML = '';
+    try {
+      const app = getMailApp();
+      const res = await app.callFunction({ name: 'wz-mail', data: { email, intent } });
+      const r = res && res.result;
+      if (r && r.ok) {
+        status.textContent = '';
+        window.__mailContent = r.content;
+        result.innerHTML = '<div class="q-ai-result" style="white-space:pre-wrap;line-height:1.7;">' + esc(r.content) + '</div>';
+      } else {
+        status.textContent = '';
+        result.innerHTML = '<div class="q-error">' + esc((r && r.error) || '生成失败，请重试') + '</div>';
+      }
+    } catch (e) {
+      status.textContent = '';
+      result.innerHTML = '<div class="q-error">请求失败：' + esc(e.message || '网络错误') + '</div>';
+    } finally {
+      btn.disabled = false; btn.textContent = '✨ 生成回复';
+    }
+  }
+  function mailClear() {
+    $('mailEmail').value = '';
+    $('mailIntent').value = '';
+    $('mailResult').innerHTML = '';
+    $('mailStatus').textContent = '';
+  }
+  function mailCopy() {
+    const c = window.__mailContent;
+    if (!c) { toast('没有可复制的内容'); return; }
+    navigator.clipboard.writeText(c).then(() => toast('已复制到剪贴板 ✓'));
+  }
+
+  // ============================================================
   // 对外暴露
   // ============================================================
   window.__qAdd = openAddModal;
@@ -578,7 +632,8 @@
   window.queryBaby = {
     doSearch, fetchRate, convert, swapCurrency, refreshRate: () => { for (const k in exRateCache) delete exRateCache[k]; fetchRate(); },
     tzSearch, queryExpress, estimatePackaging, linkFetcherSearch, linkFetcherClear, linkFetcherCopy,
-    showGlobalTool, showLogisticsTool, openAddModal, closeAddModal, saveProduct
+    showGlobalTool, showLogisticsTool, openAddModal, closeAddModal, saveProduct,
+    mailReply, mailClear, mailCopy
   };
 
   // ===== 初始化 =====
@@ -607,5 +662,12 @@
     });
     // 汇率初始化
     fetchRate();
+    // 邮件回复绑定
+    const mailGenBtn = $('mailGenBtn');
+    if (mailGenBtn) mailGenBtn.addEventListener('click', mailReply);
+    const mailClearBtn = $('mailClearBtn');
+    if (mailClearBtn) mailClearBtn.addEventListener('click', mailClear);
+    const mailCopyBtn = $('mailCopyBtn');
+    if (mailCopyBtn) mailCopyBtn.addEventListener('click', mailCopy);
   });
 })();
