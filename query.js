@@ -583,6 +583,7 @@
     } catch (e) {}
     return mailApp;
   }
+  let mailChat = []; // 多轮对话历史 [{role, content}]
   async function mailReply() {
     const email = $('mailEmail').value.trim();
     const intent = $('mailIntent').value.trim();
@@ -591,37 +592,78 @@
     if (!email && !intent) { toast('请输入客户邮件或回复意思'); return; }
     const btn = $('mailGenBtn');
     btn.disabled = true; btn.textContent = '生成中...';
-    status.textContent = '✉️ AI 正在生成邮件回复...';
-    result.innerHTML = '';
+    status.textContent = '✉️ AI 正在生成...';
+
+    // 构造本轮用户消息（首轮带客户邮件，追问只带指令）
+    let userMsg = intent;
+    if (mailChat.length === 0 && email) {
+      userMsg = '【客户邮件】\n' + email + '\n\n【用户中文回复意思/指令】\n' + intent;
+    }
+    mailChat.push({ role: 'user', content: userMsg });
+
     try {
       const app = getMailApp();
-      const res = await app.callFunction({ name: 'wz-mail', data: { email, intent } });
+      const res = await app.callFunction({ name: 'wz-mail', data: { messages: mailChat } });
       const r = res && res.result;
       if (r && r.ok) {
+        const en = r.english || '';
+        const zh = r.chinese || '';
+        mailChat.push({ role: 'assistant', content: JSON.stringify({ english: en, chinese: zh }) });
+        window.__mailEn = en;
+        window.__mailZh = zh;
         status.textContent = '';
-        window.__mailContent = r.content;
-        result.innerHTML = '<div class="q-ai-result" style="white-space:pre-wrap;line-height:1.7;">' + esc(r.content) + '</div>';
+        result.innerHTML = renderMailResult(en, zh);
       } else {
+        mailChat.pop();
         status.textContent = '';
         result.innerHTML = '<div class="q-error">' + esc((r && r.error) || '生成失败，请重试') + '</div>';
       }
     } catch (e) {
+      mailChat.pop();
       status.textContent = '';
       result.innerHTML = '<div class="q-error">请求失败：' + esc(e.message || '网络错误') + '</div>';
     } finally {
       btn.disabled = false; btn.textContent = '✨ 生成回复';
+      $('mailIntent').value = '';
     }
   }
+  function renderMailResult(en, zh) {
+    let html = '';
+    if (en) {
+      html += '<div style="background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">' +
+        '<span style="font-size:12px;font-weight:500;color:var(--purple-d);">English</span>' +
+        '<button class="btn btn-ghost btn-mini" onclick="queryBaby.mailCopyEn()">📋 复制英文</button></div>' +
+        '<div style="white-space:pre-wrap;line-height:1.7;font-size:13px;">' + esc(en) + '</div></div>';
+    }
+    if (zh) {
+      html += '<div style="background:#faf8fc;border:1px solid var(--line);border-radius:12px;padding:8px 12px;">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
+        '<span style="font-size:11px;font-weight:500;color:#a08bb0;">中文</span>' +
+        '<button class="btn btn-ghost btn-mini" onclick="queryBaby.mailCopyZh()">📋 复制中文</button></div>' +
+        '<div style="white-space:pre-wrap;line-height:1.5;font-size:12px;color:#888;">' + esc(zh) + '</div></div>';
+    }
+    if (!en && !zh) html = '<div class="q-error">AI 未返回内容</div>';
+    return html;
+  }
   function mailClear() {
+    mailChat = [];
+    window.__mailEn = '';
+    window.__mailZh = '';
     $('mailEmail').value = '';
     $('mailIntent').value = '';
     $('mailResult').innerHTML = '';
     $('mailStatus').textContent = '';
   }
-  function mailCopy() {
-    const c = window.__mailContent;
-    if (!c) { toast('没有可复制的内容'); return; }
-    navigator.clipboard.writeText(c).then(() => toast('已复制到剪贴板 ✓'));
+  function mailCopyEn() {
+    const c = window.__mailEn;
+    if (!c) { toast('没有英文可复制'); return; }
+    navigator.clipboard.writeText(c).then(() => toast('英文已复制 ✓'));
+  }
+  function mailCopyZh() {
+    const c = window.__mailZh;
+    if (!c) { toast('没有中文可复制'); return; }
+    navigator.clipboard.writeText(c).then(() => toast('中文已复制 ✓'));
   }
 
   // ============================================================
@@ -633,7 +675,7 @@
     doSearch, fetchRate, convert, swapCurrency, refreshRate: () => { for (const k in exRateCache) delete exRateCache[k]; fetchRate(); },
     tzSearch, queryExpress, estimatePackaging, linkFetcherSearch, linkFetcherClear, linkFetcherCopy,
     showGlobalTool, showLogisticsTool, openAddModal, closeAddModal, saveProduct,
-    mailReply, mailClear, mailCopy
+    mailReply, mailClear, mailCopyEn, mailCopyZh
   };
 
   // ===== 初始化 =====
@@ -667,7 +709,7 @@
     if (mailGenBtn) mailGenBtn.addEventListener('click', mailReply);
     const mailClearBtn = $('mailClearBtn');
     if (mailClearBtn) mailClearBtn.addEventListener('click', mailClear);
-    const mailCopyBtn = $('mailCopyBtn');
-    if (mailCopyBtn) mailCopyBtn.addEventListener('click', mailCopy);
+    const mailIntentInput = $('mailIntent');
+    if (mailIntentInput) mailIntentInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); mailReply(); } });
   });
 })();
