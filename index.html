@@ -418,7 +418,7 @@
     <div class="section q-toggle"><div class="num">🔍</div><div class="t">参数查询</div><span class="q-fold-arrow">▼</span></div>
     <div class="card">
     <div class="row">
-      <input type="text" id="searchInput" class="input" placeholder="输入型号，多个用空格或逗号分隔" autocomplete="off" style="flex:1;">
+      <input type="text" id="searchInput" class="input" autocomplete="off" style="flex:1;">
       <button class="btn btn-primary" id="searchBtn" style="flex:0;padding:12px 20px;">🔍</button>
     </div>
     <div id="count" style="margin-top:10px;"></div>
@@ -441,7 +441,7 @@
     <!-- 汇率 -->
     <div id="gl-exchange" style="display:none;margin-top:12px;">
       <div class="row" style="align-items:center;">
-        <input type="number" id="exInput" class="input" placeholder="金额" value="1" oninput="queryBaby.convert()" style="flex:0 0 90px;">
+        <input type="number" id="exInput" class="input" value="1" oninput="queryBaby.convert()" style="flex:0 0 90px;">
         <select id="exFrom" class="input" style="flex:1;" onchange="queryBaby.fetchRate()">
           <option value="CNY" selected>🇨🇳 CNY 人民币</option>
           <option value="USD">🇺🇸 USD 美元</option>
@@ -481,12 +481,12 @@
     <div id="gl-timezone" style="display:none;margin-top:12px;">
       <div class="row" style="align-items:center;gap:10px;">
         <div style="flex:1;position:relative;">
-          <input type="text" id="tzCityA" class="input" placeholder="城市/国家/区号" oninput="queryBaby.tzSearch('A')" onfocus="queryBaby.tzSearch('A')" autocomplete="off">
+          <input type="text" id="tzCityA" class="input" oninput="queryBaby.tzSearch('A')" onfocus="queryBaby.tzSearch('A')" autocomplete="off">
           <div id="tzSuggestA" class="tz-suggest"></div>
         </div>
         <span style="color:#a08bb0;font-weight:700;">VS</span>
         <div style="flex:1;position:relative;">
-          <input type="text" id="tzCityB" class="input" placeholder="城市/国家/区号" oninput="queryBaby.tzSearch('B')" onfocus="queryBaby.tzSearch('B')" autocomplete="off">
+          <input type="text" id="tzCityB" class="input" oninput="queryBaby.tzSearch('B')" onfocus="queryBaby.tzSearch('B')" autocomplete="off">
           <div id="tzSuggestB" class="tz-suggest"></div>
         </div>
       </div>
@@ -520,7 +520,7 @@
           <option value="ups">UPS</option>
           <option value="fedex">FedEx</option>
         </select>
-        <input type="text" id="expNumber" class="input" placeholder="输入快递单号" style="flex:1;" onkeydown="if(event.key==='Enter')queryBaby.queryExpress()">
+        <input type="text" id="expNumber" class="input" style="flex:1;" onkeydown="if(event.key==='Enter')queryBaby.queryExpress()">
         <button class="btn btn-primary" onclick="queryBaby.queryExpress()" style="flex:0;">🔍 查询</button>
       </div>
       <div id="expResult" style="margin-top:10px;"></div>
@@ -562,11 +562,11 @@
     <div class="section q-toggle"><div class="num">✉️</div><div class="t">邮件回复</div><span class="q-fold-arrow">▼</span></div>
     <div class="card">
       <div class="label">客户邮件（粘贴原文，可留空）</div>
-      <textarea id="mailEmail" class="input" style="min-height:90px;" placeholder="粘贴客户发来的英文邮件..."></textarea>
+      <textarea id="mailEmail" class="input" style="min-height:90px;"></textarea>
       <div class="label">你想回复的意思 / 指令（中文）</div>
-      <textarea id="mailIntent" class="input" style="min-height:70px;" placeholder="例如：回复说明书见附件 / 告诉他可以给1.8%折扣 / 问他付款账户信息"></textarea>
+      <textarea id="mailIntent" class="input" style="min-height:70px;"></textarea>
       <div class="label">署名（可选，用于邮件落款）</div>
-      <input id="mailSign" class="input" placeholder="例如：Trixie / Cozy Price Team，留空则用 Your Name 占位" />
+      <input id="mailSign" class="input" />
       <div class="row" style="margin-top:10px;">
         <button class="btn btn-primary" style="flex:1;" id="mailGenBtn">✨ 生成回复</button>
         <button class="btn btn-ghost" id="mailClearBtn">✕ 清空对话</button>
@@ -624,22 +624,22 @@
     <div id="addFormContent">
       <div class="form-group">
         <label class="form-label">型号 *</label>
-        <input type="text" class="form-input" id="addModel" placeholder="例如：ABC-1234" autocomplete="off">
+        <input type="text" class="form-input" id="addModel" autocomplete="off">
       </div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">尺寸</label>
-          <input type="text" class="form-input" id="addSize" placeholder="例如：10x20x5cm">
+          <input type="text" class="form-input" id="addSize">
         </div>
         <div class="form-group">
           <label class="form-label">重量</label>
-          <input type="text" class="form-input" id="addWeight" placeholder="例如：1.5kg">
+          <input type="text" class="form-input" id="addWeight">
         </div>
       </div>
       <div class="form-hint">* 必填项，尺寸和重量可留空，稍后补充</div>
       <div class="form-group">
         <label class="form-label">描述</label>
-        <input type="text" class="form-input" id="addName" placeholder="产品名称或描述（选填）" autocomplete="off">
+        <input type="text" class="form-input" id="addName" autocomplete="off">
       </div>
       <div class="modal-actions">
         <button class="btn-cancel">取消</button>
