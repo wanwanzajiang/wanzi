@@ -6,21 +6,6 @@
 (function () {
   'use strict';
 
-  // ===== 基础工具 =====
-  const $ = (id) => document.getElementById(id);
-  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
-  function toast(msg, ms = 1800) {
-    const t = $('toast'); if (!t) return;
-    t.textContent = msg; t.classList.add('show');
-    clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), ms);
-  }
-  function highlight(text, keyword) {
-    text = esc(String(text == null ? '' : text));
-    if (!text || !keyword) return text;
-    const regex = new RegExp('(' + keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
-    return text.replace(regex, '<mark style="background:#ffe4a8;padding:0 4px;border-radius:4px;">$1</mark>');
-  }
-
   // ===== Supabase 配置 =====
   const SUPABASE_URL = 'https://omhtrpqdxdwbmwfdkgeg.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_GfN5hUFLP3PN7A14eVah3w_SbD12PjC';
@@ -178,25 +163,6 @@
   const exRateCache = {};
   let exLastUpdate = null;
 
-  function fetchHuilvCc(from, to) {
-    return new Promise((resolve, reject) => {
-      const cb = 'huilv_cb_' + Date.now();
-      const url = 'https://webapi.huilv.cc/api/exchange?num=1&chiyouhuobi=' + from + '&duihuanhuobi=' + to + '&type=0&callback=' + cb;
-      window[cb] = (data) => {
-        try {
-          delete window[cb];
-          if (data.state === 'ok') resolve({ rate: parseFloat(data.dangqianhuilv), updateTime: data.huilvupdate });
-          else reject(new Error('huilv.cc state: ' + data.state));
-        } catch (e) { reject(e); }
-      };
-      const s = document.createElement('script');
-      s.src = url;
-      s.onerror = () => { delete window[cb]; reject(new Error('Script load error')); };
-      document.head.appendChild(s);
-      setTimeout(() => { if (window[cb]) { delete window[cb]; if (s.parentNode) s.parentNode.removeChild(s); reject(new Error('Timeout')); } }, 5000);
-    });
-  }
-
   async function fetchRate() {
     const from = $('exFrom').value, to = $('exTo').value;
     const resultEl = $('exResult'), rateEl = $('exRate');
@@ -210,19 +176,10 @@
     if (cacheValid) {
       rates = exRateCache[cacheKey].data;
       const up = exLastUpdate ? ' · 更新: ' + exLastUpdate : '';
-      rateEl.innerHTML = '<span class="q-loading">📡 huilv.cc · 1 ' + from + ' ≈ ' + (rates[to] || '-').toFixed(4) + ' ' + to + ' · 已缓存' + up + '</span>';
+      rateEl.innerHTML = '<span class="q-loading">📡 实时汇率 · 1 ' + from + ' ≈ ' + (rates[to] || '-').toFixed(4) + ' ' + to + ' · 已缓存' + up + '</span>';
     } else {
       try {
         rates = null;
-        try {
-          const hr = await fetchHuilvCc(from, to);
-          if (hr && hr.rate) {
-            rates = {}; rates[to] = hr.rate;
-            exRateCache[cacheKey] = { data: rates, ts };
-            exLastUpdate = hr.updateTime;
-            rateInfo = '📡 huilv.cc(实时) · 更新: ' + exLastUpdate;
-          }
-        } catch (e1) { console.log('huilv.cc 失败:', e1.message); }
         if (!rates) {
           try {
             const r2 = await fetch('https://api.exchangerate-api.com/v4/latest/' + from, { signal: AbortSignal.timeout(8000) });
