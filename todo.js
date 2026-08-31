@@ -60,12 +60,25 @@
   }
 
   // ===== 操作 =====
-  function add(text, time) {
+  function add(text, dtValue) {
     const t = String(text || '').trim();
     if (!t) { toast('先写点什么吧～'); return; }
-    const list = loadDay(selectedDate);
-    list.push({ id: Date.now(), text: t, done: false, time: time || '' });
-    saveDay(selectedDate, list);
+    // 默认归属当前月历选中的日期；若选了日期时间，则按所选日期 + 时间
+    let targetDate = selectedDate;
+    let time = '';
+    if (dtValue) {
+      const m = String(dtValue).match(/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/);
+      if (m) { targetDate = m[1]; time = m[2]; }
+    }
+    const list = loadDay(targetDate);
+    list.push({ id: Date.now(), text: t, done: false, time: time });
+    saveDay(targetDate, list);
+    // 若加到了别的日期，把月历切过去，让用户看到
+    if (targetDate !== selectedDate) {
+      const parts = targetDate.split('-').map(Number);
+      selectedDate = targetDate;
+      viewYear = parts[0]; viewMonth = parts[1] - 1;
+    }
     render();
   }
 
