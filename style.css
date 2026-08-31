@@ -324,13 +324,25 @@
     .dup-hit a { color: var(--purple-d); word-break: break-all; }
     .dup-hit a:hover { color: var(--pink-d); }
 
-    /* ===== 每日计划（布局参考 wanzi-mini 计划页）===== */
-    .todo-ds { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+    /* ===== 每日计划（日历选日期，布局参考 wanzi-mini 计划页）===== */
+    .todo-cal { margin-top: 10px; }
+    .todo-cal-head { display: flex; align-items: center; gap: 8px; }
     .todo-ds-btn { width: 30px; height: 30px; border: 2px solid var(--line); border-radius: 10px 8px 11px 9px; background: #fff; color: var(--purple-d); font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; }
     .todo-ds-btn:hover { background: #fff0f7; border-color: var(--pink); }
-    .todo-ds-label { flex: 1; text-align: center; font-size: 13.5px; font-weight: 600; color: var(--ink); }
+    .todo-cal-title { flex: 1; text-align: center; font-size: 14px; font-weight: 700; color: var(--ink); }
     .todo-ds-today { border: 2px solid var(--line); border-radius: 10px 8px 11px 9px; background: #fff; color: var(--soft); font-size: 11.5px; padding: 5px 10px; cursor: pointer; }
     .todo-ds-today:hover { background: #fff0f7; color: var(--purple-d); }
+
+    .todo-cal-week { display: grid; grid-template-columns: repeat(7, 1fr); margin-top: 8px; text-align: center; }
+    .todo-cal-week span { font-size: 11px; color: var(--soft); padding: 3px 0; }
+    .todo-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; margin-top: 3px; }
+    .todo-cal-cell { position: relative; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--ink); border-radius: 9px 7px 10px 8px; cursor: pointer; transition: all .12s; }
+    .todo-cal-cell.empty { cursor: default; }
+    .todo-cal-cell:hover { background: #fff0f7; }
+    .todo-cal-cell.today { font-weight: 700; color: var(--pink-d); background: #fff7fb; }
+    .todo-cal-cell.sel { background: var(--pink); color: #fff; font-weight: 700; }
+    .todo-cal-dot { position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; border-radius: 50%; background: var(--purple-d); }
+    .todo-cal-cell.sel .todo-cal-dot { background: #fff; }
 
     .todo-progress { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
     .todo-progress-track { flex: 1; height: 10px; background: #fff0f7; border: 2px solid var(--line); border-radius: 99px; overflow: hidden; }
