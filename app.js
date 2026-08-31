@@ -10,6 +10,19 @@
 
   let draggedItem = null;
 
+  // ===== 报价宝宝 iframe：懒加载 + 常驻复用 =====
+  // 旧实现每次切到报价面板都销毁重建 iframe，导致白屏重载 + 丢失登录态。
+  // 改为：首次切到报价面板才设置 src（懒加载，不拖慢首屏），之后一直复用同一个 iframe。
+  function ensurePriceFrame() {
+    const f = document.getElementById('priceFrame');
+    if (!f) return;
+    if (f.getAttribute('data-loaded') === '1') return; // 已加载过 → 直接复用，保住登录态
+    const src = f.getAttribute('data-src');
+    if (!src) return;
+    f.src = src;
+    f.setAttribute('data-loaded', '1');
+  }
+
   // ===== 面板切换 =====
   function showPanel(name) {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -18,22 +31,8 @@
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     const nav = document.querySelector('.nav-item[data-panel="' + name + '"]');
     if (nav) nav.classList.add('active');
-    // 报价宝宝：隐藏面板里的 iframe 切到可见后需要强制重载才会渲染
-    if (name === 'price') {
-      const f = document.getElementById('priceFrame');
-      if (f) {
-        const src = f.getAttribute('data-src') || f.src;
-        // 移除再重建，强制浏览器渲染
-        const wrap = f.parentNode;
-        const fresh = document.createElement('iframe');
-        fresh.id = 'priceFrame';
-        fresh.className = 'price-frame';
-        fresh.title = '报价宝宝';
-        fresh.setAttribute('data-src', src);
-        fresh.src = src;
-        wrap.replaceChild(fresh, f);
-      }
-    }
+    // 报价宝宝：懒加载 + 常驻复用（不再销毁重建，保住登录态）
+    if (name === 'price') ensurePriceFrame();
   }
 
   // ===== 查询宝宝：点击导航 = 全部收起/展开（目录模式） =====
