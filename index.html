@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>丸子の工作宝宝</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23ffb7d2'/%3E%3Ccircle cx='32' cy='32' r='24' fill='%23fffdf8'/%3E%3Ctext x='32' y='44' font-size='30' text-anchor='middle'%3E%F0%9F%8E%90%3C/text%3E%3C/svg%3E" />
-  <link rel="stylesheet" href="style.css?v=20260826f">
+  <link rel="stylesheet" href="style.css?v=20260831b">
   <link rel="stylesheet" href="query.css?v=20260827c">
 </head>
 <body>
@@ -585,11 +585,33 @@
     <div class="panel" id="panel-todo">
       <div class="card">
         <div class="h2">📝 每日计划</div>
+
+        <!-- 日期切换（昨天 / 今天 / 明天） -->
+        <div class="todo-ds">
+          <button class="todo-ds-btn" id="todoDayPrev" title="前一天">‹</button>
+          <span class="todo-ds-label" id="todoDateLabel">今天</span>
+          <button class="todo-ds-btn" id="todoDayNext" title="后一天">›</button>
+          <button class="todo-ds-today" id="todoDayToday">回到今天</button>
+        </div>
+
+        <!-- 完成进度 -->
+        <div class="todo-progress" id="todoProgressWrap">
+          <div class="todo-progress-track"><div class="todo-progress-fill" id="todoProgressFill"></div></div>
+          <span class="todo-progress-text" id="todoProgressText">0/0</span>
+        </div>
+
+        <!-- 输入（可带时间） -->
         <div class="row" style="margin-top:8px;">
           <input id="todoInput" class="input" style="flex:1;" autocomplete="off" />
+          <input id="todoTime" class="input" type="time" style="flex:0 0 108px;" title="设置时间（可选）" />
           <button class="btn btn-primary" id="todoAddBtn">添加</button>
         </div>
+
         <div id="todoList" style="margin-top:10px;"></div>
+
+        <div class="row" style="margin-top:10px;">
+          <button class="btn btn-ghost btn-mini" id="todoClearDoneBtn">清除已完成</button>
+        </div>
       </div>
     </div>
 
@@ -615,7 +637,8 @@
         <a class="btn btn-primary btn-mini" href="https://chachaer815.github.io/xinxiner/baojia-query/" target="_blank" rel="noopener">↗ 新窗口打开</a>
       </div>
       <div class="price-frame-wrap">
-        <iframe id="priceFrame" class="price-frame" src="https://chachaer815.github.io/xinxiner/baojia-query/" title="报价宝宝"></iframe>
+        <!-- src 改为 data-src：首次切到本面板才由 app.js 懒加载，且加载后常驻复用（保住登录态） -->
+        <iframe id="priceFrame" class="price-frame" data-src="https://chachaer815.github.io/xinxiner/baojia-query/" title="报价宝宝"></iframe>
       </div>
     </div>
   </main>
@@ -672,11 +695,11 @@
   <div class="toast" id="toast"></div>
 
   <script src="common.js?v=20260830a"></script>
-  <script src="app.js?v=20260828a"></script>
+  <script src="app.js?v=20260831b"></script>
   <script src="tz-data.js?v=20260827c"></script>
   <script src="query.js?v=20260831a"></script>
   <script src="publish.js?v=20260831a"></script>
-  <script src="todo.js?v=20260831a"></script>
+  <script src="todo.js?v=20260831b"></script>
   <script src="more.js?v=20260831a"></script>
 </body>
 </html>
