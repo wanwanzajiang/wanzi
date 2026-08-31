@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>丸子の工作宝宝</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23ffb7d2'/%3E%3Ccircle cx='32' cy='32' r='24' fill='%23fffdf8'/%3E%3Ctext x='32' y='44' font-size='30' text-anchor='middle'%3E%F0%9F%8E%90%3C/text%3E%3C/svg%3E" />
-  <link rel="stylesheet" href="style.css?v=20260831b">
+  <link rel="stylesheet" href="style.css?v=20260831c">
   <link rel="stylesheet" href="query.css?v=20260827c">
 </head>
 <body>
@@ -586,12 +586,18 @@
       <div class="card">
         <div class="h2">📝 每日计划</div>
 
-        <!-- 日期切换（昨天 / 今天 / 明天） -->
-        <div class="todo-ds">
-          <button class="todo-ds-btn" id="todoDayPrev" title="前一天">‹</button>
-          <span class="todo-ds-label" id="todoDateLabel">今天</span>
-          <button class="todo-ds-btn" id="todoDayNext" title="后一天">›</button>
-          <button class="todo-ds-today" id="todoDayToday">回到今天</button>
+        <!-- 日历选日期（点任意日期 / 翻月） -->
+        <div class="todo-cal">
+          <div class="todo-cal-head">
+            <button class="todo-ds-btn" id="todoCalPrevMonth" title="上个月">‹</button>
+            <span class="todo-cal-title" id="todoCalTitle">2026年8月</span>
+            <button class="todo-ds-btn" id="todoCalNextMonth" title="下个月">›</button>
+            <button class="todo-ds-today" id="todoCalToday">今天</button>
+          </div>
+          <div class="todo-cal-week">
+            <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+          </div>
+          <div class="todo-cal-grid" id="todoCalGrid"></div>
         </div>
 
         <!-- 完成进度 -->
@@ -699,7 +705,7 @@
   <script src="tz-data.js?v=20260827c"></script>
   <script src="query.js?v=20260831a"></script>
   <script src="publish.js?v=20260831a"></script>
-  <script src="todo.js?v=20260831b"></script>
+  <script src="todo.js?v=20260831c"></script>
   <script src="more.js?v=20260831a"></script>
 </body>
 </html>
