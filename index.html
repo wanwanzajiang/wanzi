@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>丸子の工作宝宝</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23ffb7d2'/%3E%3Ccircle cx='32' cy='32' r='24' fill='%23fffdf8'/%3E%3Ctext x='32' y='44' font-size='30' text-anchor='middle'%3E%F0%9F%8E%90%3C/text%3E%3C/svg%3E" />
-  <script src="cloudbase.full.js"></script>
   <link rel="stylesheet" href="style.css?v=20260826f">
   <link rel="stylesheet" href="query.css?v=20260827c">
 </head>
@@ -586,7 +585,11 @@
     <div class="panel" id="panel-todo">
       <div class="card">
         <div class="h2">📝 每日计划</div>
-        <div class="hint">写下今日待办，完成后轻轻一点划掉。<br>功能开发中，敬请期待～</div>
+        <div class="row" style="margin-top:8px;">
+          <input id="todoInput" class="input" style="flex:1;" autocomplete="off" />
+          <button class="btn btn-primary" id="todoAddBtn">添加</button>
+        </div>
+        <div id="todoList" style="margin-top:10px;"></div>
       </div>
     </div>
 
@@ -595,6 +598,10 @@
       <div class="card">
         <div class="h2">✨ 更多功能</div>
         <div class="hint">这里会陆续加入丸子的新模块。<br>有想法随时告诉人家～</div>
+        <div class="row" style="margin-top:10px;">
+          <button class="btn btn-ghost" id="moreResetNavBtn">重置导航顺序</button>
+          <button class="btn btn-ghost" id="moreResetFoldBtn">重置折叠状态</button>
+        </div>
       </div>
     </div>
 
@@ -664,9 +671,12 @@
 
   <div class="toast" id="toast"></div>
 
+  <script src="common.js?v=20260830a"></script>
   <script src="app.js?v=20260828a"></script>
   <script src="tz-data.js?v=20260827c"></script>
-  <script src="query.js?v=20260828b"></script>
-  <script src="publish.js?v=20260828a"></script>
+  <script src="query.js?v=20260831a"></script>
+  <script src="publish.js?v=20260831a"></script>
+  <script src="todo.js?v=20260831a"></script>
+  <script src="more.js?v=20260831a"></script>
 </body>
 </html>
