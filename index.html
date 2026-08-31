@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>丸子の工作宝宝</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23ffb7d2'/%3E%3Ccircle cx='32' cy='32' r='24' fill='%23fffdf8'/%3E%3Ctext x='32' y='44' font-size='30' text-anchor='middle'%3E%F0%9F%8E%90%3C/text%3E%3C/svg%3E" />
-  <link rel="stylesheet" href="style.css?v=20260831c">
+  <link rel="stylesheet" href="style.css?v=20260831e">
   <link rel="stylesheet" href="query.css?v=20260827c">
 </head>
 <body>
@@ -33,6 +33,10 @@
       <div class="nav-item" data-panel="price" title="报价宝宝">
         <img class="nav-icon-img" src="icon-logo.png" alt="报价宝宝">
         <span class="nav-label">报价宝宝</span>
+      </div>
+      <div class="nav-item" data-panel="asset" title="我的资产">
+        <span class="nav-icon">💰</span>
+        <span class="nav-label">我的资产</span>
       </div>
       <div class="nav-item" data-panel="more" title="更多">
         <span class="nav-icon">✨</span>
@@ -586,18 +590,12 @@
       <div class="card">
         <div class="h2">📝 每日计划</div>
 
-        <!-- 日历选日期（点任意日期 / 翻月） -->
-        <div class="todo-cal">
-          <div class="todo-cal-head">
-            <button class="todo-ds-btn" id="todoCalPrevMonth" title="上个月">‹</button>
-            <span class="todo-cal-title" id="todoCalTitle">2026年8月</span>
-            <button class="todo-ds-btn" id="todoCalNextMonth" title="下个月">›</button>
-            <button class="todo-ds-today" id="todoCalToday">今天</button>
-          </div>
-          <div class="todo-cal-week">
-            <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
-          </div>
-          <div class="todo-cal-grid" id="todoCalGrid"></div>
+        <!-- 日期导航（简洁，翻天查看；添加待办用日期时间选择器选任意日期） -->
+        <div class="todo-nav">
+          <button class="todo-ds-btn" id="todoDayPrev" title="前一天">‹</button>
+          <span class="todo-nav-label" id="todoDateLabel">今天</span>
+          <button class="todo-ds-btn" id="todoDayNext" title="后一天">›</button>
+          <button class="todo-ds-today" id="todoDayToday">今天</button>
         </div>
 
         <!-- 完成进度 -->
@@ -618,6 +616,73 @@
         <div class="row" style="margin-top:10px;">
           <button class="btn btn-ghost btn-mini" id="todoClearDoneBtn">清除已完成</button>
         </div>
+      </div>
+    </div>
+
+    <!-- 我的资产 -->
+    <div class="panel" id="panel-asset">
+      <!-- 净资产总览 -->
+      <div class="card asset-networth">
+        <div class="asset-net-label">💰 净资产</div>
+        <div class="asset-net-value" id="assetNetWorth">¥0.00</div>
+        <div class="asset-net-row">
+          <span class="asset-net-item">总资产 <b id="assetTotalAsset">¥0.00</b></span>
+          <span class="asset-net-item">总负债 <b id="assetTotalLiability">¥0.00</b></span>
+        </div>
+      </div>
+
+      <!-- 记一笔 -->
+      <div class="card">
+        <div class="h2" style="margin-bottom:8px;">💸 记一笔</div>
+        <div class="asset-seg">
+          <button class="asset-seg-btn on" id="assetTypeOut" data-type="out">支出</button>
+          <button class="asset-seg-btn" id="assetTypeIn" data-type="in">收入</button>
+        </div>
+        <input id="assetAmount" class="input asset-amount" type="number" step="0.01" min="0" placeholder="金额" style="margin-top:10px;" />
+        <div class="asset-cats" id="assetCats"></div>
+        <div class="row" style="margin-top:8px;">
+          <select id="assetAccount" class="input" style="flex:1;"></select>
+          <input id="assetDate" class="input" type="date" style="flex:0 0 140px;" />
+        </div>
+        <input id="assetNote" class="input" placeholder="备注（可选）" style="margin-top:8px;" />
+        <button class="btn btn-primary btn-block" id="assetAddBtn" style="margin-top:8px;">入账</button>
+      </div>
+
+      <!-- 账户 -->
+      <div class="card">
+        <div class="h2" style="margin-bottom:8px;">🏦 账户</div>
+        <div class="asset-accounts" id="assetAccounts"></div>
+        <div id="assetAccountForm" style="display:none;margin-top:8px;">
+          <input id="assetNewAccName" class="input" placeholder="账户名称" />
+          <select id="assetNewAccKind" class="input" style="margin-top:6px;">
+            <option value="现金">💰 现金</option>
+            <option value="储蓄卡">💳 储蓄卡</option>
+            <option value="信用卡">💳 信用卡</option>
+            <option value="花呗">📱 花呗</option>
+          </select>
+          <div class="row" style="margin-top:6px;">
+            <button class="btn btn-primary btn-mini" id="assetAddAccountOk">添加</button>
+            <button class="btn btn-ghost btn-mini" id="assetAddAccountCancel">取消</button>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-block" id="assetAddAccountBtn" style="margin-top:8px;">➕ 添加账户</button>
+      </div>
+
+      <!-- 月统计 -->
+      <div class="card">
+        <div class="h2" style="margin-bottom:8px;">📊 本月统计</div>
+        <div class="asset-stats">
+          <div class="asset-stat"><div class="v out" id="assetMonthOut">¥0</div><div class="k">支出</div></div>
+          <div class="asset-stat"><div class="v in" id="assetMonthIn">¥0</div><div class="k">收入</div></div>
+          <div class="asset-stat"><div class="v" id="assetMonthBalance">¥0</div><div class="k">结余</div></div>
+        </div>
+        <div id="assetCatBars" style="margin-top:8px;"></div>
+      </div>
+
+      <!-- 账单 -->
+      <div class="card">
+        <div class="h2" style="margin-bottom:8px;">📋 最近账单</div>
+        <div id="assetTxs" style="margin-top:8px;"></div>
       </div>
     </div>
 
@@ -705,7 +770,8 @@
   <script src="tz-data.js?v=20260827c"></script>
   <script src="query.js?v=20260831a"></script>
   <script src="publish.js?v=20260831a"></script>
-  <script src="todo.js?v=20260831d"></script>
+  <script src="todo.js?v=20260831e"></script>
   <script src="more.js?v=20260831a"></script>
+  <script src="asset.js?v=20260831e"></script>
 </body>
 </html>
