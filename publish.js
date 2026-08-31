@@ -265,11 +265,6 @@
       bulkDoStatus: false, bulkStatusValue: 'ACTIVE', bulkRunning: false,
     };
 
-    // ===== 工具函数 =====
-    const $ = (id) => document.getElementById(id);
-    function toast(msg, ms = 1800) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), ms); }
-    function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
     // ===== 云函数封装 =====
     function getCloudKey() { try { return localStorage.getItem('wz_cloud_key') || ''; } catch (e) { return ''; } }
     async function callCloud(action, data = {}) {
@@ -289,8 +284,25 @@
     }
     function shopIndex() { return parseInt($('shopSelect').value || '0', 10); }
 
+    // ===== 云开发 SDK 按需异步加载（902KB，避免阻塞首屏渲染）=====
+    let cloudbaseLoadPromise = null;
+    function loadCloudbase() {
+      if (window.cloudbase) return Promise.resolve();
+      if (cloudbaseLoadPromise) return cloudbaseLoadPromise;
+      cloudbaseLoadPromise = new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'cloudbase.full.js';
+        s.async = true;
+        s.onload = () => resolve();
+        s.onerror = () => reject(new Error('云开发 SDK 加载失败'));
+        document.head.appendChild(s);
+      });
+      return cloudbaseLoadPromise;
+    }
+
     // ===== 登录 =====
     async function initCloud() {
+      await loadCloudbase();
       app = cloudbase.init({ env: ENV, region: 'ap-shanghai' });
       try { const auth = app.auth({ persistence: 'local' }); await auth.signInAnonymously(); } catch (e) { console.warn('匿名登录失败，尝试继续', e); }
     }
@@ -1175,16 +1187,23 @@
 
     // ===== 启动 =====
     (async function boot() {
-      await initCloud();
+      // 先做不依赖云开发的 UI 初始化，让界面立刻可用
       bindEvents();
       onDescFormatChange();
       checkDraft();
       renderUploadList();
-      loadShops();
-      loadQueue();
-      setInterval(tickTokenTimers, 1000);
-      setInterval(loadQueue, 30000);
-      initDedup();
+      // 云开发 SDK 后台异步加载（902KB，不阻塞首屏）
+      try {
+        await initCloud();
+        loadShops();
+        loadQueue();
+        setInterval(tickTokenTimers, 1000);
+        setInterval(loadQueue, 30000);
+        initDedup();
+      } catch (e) {
+        console.warn('云开发初始化失败:', e);
+        toast('云开发加载失败，发品功能暂不可用');
+      }
     })();
 
     // ============================================================
