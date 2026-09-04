@@ -254,6 +254,9 @@
     .nav-icon-img { width: 26px; height: 26px; object-fit: contain; display: block; filter: drop-shadow(0 2px 3px rgba(214, 180, 220, 0.35)); transition: transform .15s; }
     .nav-item:hover .nav-icon-img { transform: scale(1.1); }
     .nav-item.active .nav-icon-img { transform: scale(1.05); }
+    .nav-item .nav-icon-active { display: none; }
+    .nav-item.active .nav-icon-inactive { display: none; }
+    .nav-item.active .nav-icon-active { display: block; }
     .nav-label { font-size: 11px; font-weight: 700; line-height: 1.2; }
     .main {
       grid-area: main;
